@@ -32,8 +32,8 @@
           <input id="positionInput" type="range" min="0" max="1000" value="0">
         </label>
         <label>
-          <span>Tempo</span>
-          <input id="speedInput" type="range" min="1" max="180" value="34">
+          <span>Tempo <strong id="speedReadout">18</strong></span>
+          <input id="speedInput" type="range" min="2" max="72" step="1" value="18">
         </label>
         <label>
           <span>Schrift</span>
@@ -42,6 +42,9 @@
       </section>
 
       <section class="toggles">
+        <button class="secondary-button speed-preset" type="button" data-speed="10">Langsam</button>
+        <button class="secondary-button speed-preset" type="button" data-speed="18">Normal</button>
+        <button class="secondary-button speed-preset" type="button" data-speed="28">Zuegig</button>
         <label>
           <input id="mirrorInput" type="checkbox">
           <span>Spiegelmodus</span>

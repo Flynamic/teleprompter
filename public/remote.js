@@ -4,6 +4,7 @@ const topButton = document.querySelector("#topButton");
 const tokenInput = document.querySelector("#tokenInput");
 const positionInput = document.querySelector("#positionInput");
 const speedInput = document.querySelector("#speedInput");
+const speedReadout = document.querySelector("#speedReadout");
 const fontInput = document.querySelector("#fontInput");
 const mirrorInput = document.querySelector("#mirrorInput");
 const textInput = document.querySelector("#textInput");
@@ -47,6 +48,9 @@ function render(state) {
   }
   positionInput.value = Math.round((state.position || 0) * 1000);
   speedInput.value = state.speed;
+  if (speedReadout) {
+    speedReadout.textContent = `${Math.round(state.speed || 0)}`;
+  }
   fontInput.value = state.fontSize;
   mirrorInput.checked = state.mirror;
   playPause.textContent = state.playing ? "Pause" : "Start";
@@ -56,7 +60,7 @@ function render(state) {
   if (screenPreview) {
     requestAnimationFrame(() => {
       const maxPreviewScroll = Math.max(0, screenPreview.scrollHeight - screenPreview.clientHeight);
-      screenPreview.scrollTop = maxPreviewScroll * (state.position || 0);
+      screenText.style.transform = `translateY(${-maxPreviewScroll * (state.position || 0)}px)${state.mirror ? " scaleX(-1)" : ""}`;
     });
   }
   applying = false;
@@ -90,8 +94,23 @@ positionInput.addEventListener("input", () => {
 
 speedInput.addEventListener("input", () => {
   if (!applying) {
-    send("control:setSpeed", { speed: Number(speedInput.value) });
+    const speed = Number(speedInput.value);
+    if (speedReadout) {
+      speedReadout.textContent = `${speed}`;
+    }
+    send("control:setSpeed", { speed });
   }
+});
+
+document.querySelectorAll(".speed-preset").forEach((button) => {
+  button.addEventListener("click", () => {
+    const speed = Number(button.dataset.speed);
+    speedInput.value = speed;
+    if (speedReadout) {
+      speedReadout.textContent = `${speed}`;
+    }
+    send("control:setSpeed", { speed });
+  });
 });
 
 fontInput.addEventListener("input", () => {

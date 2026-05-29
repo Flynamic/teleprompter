@@ -101,10 +101,7 @@ textarea {
   text-align: center;
   text-wrap: balance;
   text-shadow: 0 0 18px rgba(255, 248, 234, 0.18);
-}
-
-.prompter-text.mirror {
-  transform: scaleX(-1);
+  will-change: transform;
 }
 
 .tap-target {
@@ -222,6 +219,11 @@ h1 {
   text-transform: uppercase;
 }
 
+.sliders strong {
+  font-size: 16px;
+  color: var(--accent);
+}
+
 .token-field input {
   width: 100%;
   border: 0;
@@ -299,10 +301,7 @@ input[type="range"] {
   line-height: 1.28;
   letter-spacing: 0;
   text-align: center;
-}
-
-.screen-text.mirror {
-  transform: scaleX(-1);
+  will-change: transform;
 }
 
 .position-readout {

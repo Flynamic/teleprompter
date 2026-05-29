@@ -18,7 +18,6 @@ function render(state) {
   current = state;
   text.textContent = state.text || "";
   text.style.fontSize = `${state.fontSize}px`;
-  text.classList.toggle("mirror", state.mirror);
 
   requestAnimationFrame(() => {
     const maxScroll = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
@@ -26,7 +25,7 @@ function render(state) {
     const layoutChanged = previousText !== state.text || previousFontSize !== state.fontSize;
     if (!cameFromThisPrompter || layoutChanged || !state.playing) {
       virtualScrollTop = maxScroll * state.position;
-      viewport.scrollTop = virtualScrollTop;
+      applyOffset();
     }
   });
 }
@@ -46,6 +45,11 @@ function clamp(number, min, max) {
   return Math.min(max, Math.max(min, number));
 }
 
+function applyOffset() {
+  const mirror = current.mirror ? " scaleX(-1)" : "";
+  text.style.transform = `translateY(${-virtualScrollTop}px)${mirror}`;
+}
+
 function tick(now) {
   const delta = Math.min(80, now - lastFrame) / 1000;
   lastFrame = now;
@@ -53,7 +57,7 @@ function tick(now) {
   if (current.playing) {
     const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
     virtualScrollTop = clamp(virtualScrollTop + current.speed * delta, 0, maxScrollTop);
-    viewport.scrollTop = virtualScrollTop;
+    applyOffset();
     setPositionFromScroll();
     if (now - lastSync > 180) {
       socket.send("prompter:setPosition", {

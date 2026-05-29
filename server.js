@@ -23,7 +23,7 @@ const state = {
   text: process.env.DEFAULT_TEXT || defaultText,
   position: 0,
   playing: false,
-  speed: 34,
+  speed: 18,
   fontSize: 72,
   mirror: false,
   viewport: {
@@ -146,7 +146,7 @@ function handleControl(ws, event, payload = {}) {
   }
 
   if (event === "control:setSpeed") {
-    updateState({ speed: clamp(Number(payload.speed) || state.speed, 1, 180) }, payload.clientId || null);
+    updateState({ speed: clamp(Number(payload.speed) || state.speed, 2, 72) }, payload.clientId || null);
     return;
   }
 
