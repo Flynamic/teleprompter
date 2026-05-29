@@ -7,7 +7,9 @@ const speedInput = document.querySelector("#speedInput");
 const fontInput = document.querySelector("#fontInput");
 const mirrorInput = document.querySelector("#mirrorInput");
 const textInput = document.querySelector("#textInput");
-const preview = document.querySelector("#preview");
+const screenPreview = document.querySelector("#screenPreview");
+const screenText = document.querySelector("#screenText");
+const positionReadout = document.querySelector("#positionReadout");
 
 const params = new URLSearchParams(window.location.search);
 tokenInput.value = params.get("token") || window.localStorage.getItem("teleprompter-token") || "";
@@ -28,13 +30,22 @@ function send(event, payload = {}) {
 function render(state) {
   current = state;
   applying = true;
-  textInput.value = state.text || "";
-  preview.textContent = state.text || "";
+  if (document.activeElement !== textInput) {
+    textInput.value = state.text || "";
+  }
+  screenText.textContent = state.text || "";
+  screenText.style.fontSize = `${Math.max(18, Math.round((state.fontSize || 72) * 0.28))}px`;
+  screenText.classList.toggle("mirror", state.mirror);
   positionInput.value = Math.round((state.position || 0) * 1000);
   speedInput.value = state.speed;
   fontInput.value = state.fontSize;
   mirrorInput.checked = state.mirror;
   playPause.textContent = state.playing ? "Pause" : "Start";
+  positionReadout.textContent = `${Math.round((state.position || 0) * 100)}%`;
+  requestAnimationFrame(() => {
+    const maxPreviewScroll = Math.max(0, screenPreview.scrollHeight - screenPreview.clientHeight);
+    screenPreview.scrollTop = maxPreviewScroll * (state.position || 0);
+  });
   applying = false;
 }
 
@@ -82,7 +93,7 @@ mirrorInput.addEventListener("change", () => {
 
 let textTimer;
 textInput.addEventListener("input", () => {
-  preview.textContent = textInput.value;
+  screenText.textContent = textInput.value;
   clearTimeout(textTimer);
   textTimer = setTimeout(() => {
     send("control:setText", { text: textInput.value });

@@ -9,9 +9,12 @@ const token = params.get("token") || window.localStorage.getItem("teleprompter-t
 let current = {};
 let lastFrame = performance.now();
 let lastSync = 0;
+let virtualScrollTop = 0;
 let socket;
 
 function render(state) {
+  const previousText = current.text;
+  const previousFontSize = current.fontSize;
   current = state;
   text.textContent = state.text || "";
   text.style.fontSize = `${state.fontSize}px`;
@@ -19,7 +22,12 @@ function render(state) {
 
   requestAnimationFrame(() => {
     const maxScroll = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
-    viewport.scrollTop = maxScroll * state.position;
+    const cameFromThisPrompter = state.sourceId === socket?.clientId;
+    const layoutChanged = previousText !== state.text || previousFontSize !== state.fontSize;
+    if (!cameFromThisPrompter || layoutChanged || !state.playing) {
+      virtualScrollTop = maxScroll * state.position;
+      viewport.scrollTop = virtualScrollTop;
+    }
   });
 }
 
@@ -31,7 +39,11 @@ socket = window.TeleprompterSocket(render, setStatus);
 
 function setPositionFromScroll() {
   const maxScroll = Math.max(1, viewport.scrollHeight - viewport.clientHeight);
-  current.position = viewport.scrollTop / maxScroll;
+  current.position = clamp(virtualScrollTop / maxScroll, 0, 1);
+}
+
+function clamp(number, min, max) {
+  return Math.min(max, Math.max(min, number));
 }
 
 function tick(now) {
@@ -39,14 +51,28 @@ function tick(now) {
   lastFrame = now;
 
   if (current.playing) {
-    viewport.scrollTop += current.speed * delta;
+    const maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+    virtualScrollTop = clamp(virtualScrollTop + current.speed * delta, 0, maxScrollTop);
+    viewport.scrollTop = virtualScrollTop;
     setPositionFromScroll();
     if (now - lastSync > 180) {
-      socket.send("prompter:setPosition", { position: current.position });
+      socket.send("prompter:setPosition", {
+        position: current.position,
+        scrollTop: virtualScrollTop,
+        scrollHeight: viewport.scrollHeight,
+        clientHeight: viewport.clientHeight
+      });
       lastSync = now;
     }
-    if (viewport.scrollTop >= viewport.scrollHeight - viewport.clientHeight - 1) {
-      socket.send("control:pause", { token });
+    if (virtualScrollTop >= maxScrollTop - 1) {
+      current.playing = false;
+      socket.send("prompter:setPosition", {
+        position: current.position,
+        scrollTop: virtualScrollTop,
+        scrollHeight: viewport.scrollHeight,
+        clientHeight: viewport.clientHeight,
+        playing: false
+      });
     }
   }
 

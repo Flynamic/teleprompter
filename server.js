@@ -23,6 +23,12 @@ const state = {
   speed: 34,
   fontSize: 72,
   mirror: false,
+  viewport: {
+    scrollTop: 0,
+    scrollHeight: 1,
+    clientHeight: 1
+  },
+  sourceId: null,
   updatedAt: Date.now()
 };
 
@@ -73,14 +79,25 @@ function clamp(number, min, max) {
   return Math.min(max, Math.max(min, number));
 }
 
-function updateState(patch) {
-  Object.assign(state, patch, { updatedAt: Date.now() });
+function updateState(patch, sourceId = null) {
+  Object.assign(state, patch, { sourceId, updatedAt: Date.now() });
   broadcast("state:update", state);
 }
 
 function handleControl(ws, event, payload = {}) {
   if (event === "prompter:setPosition") {
-    updateState({ position: clamp(Number(payload.position) || 0, 0, 1) });
+    const patch = {
+      position: clamp(Number(payload.position) || 0, 0, 1),
+      viewport: {
+        scrollTop: Math.max(0, Number(payload.scrollTop) || 0),
+        scrollHeight: Math.max(1, Number(payload.scrollHeight) || 1),
+        clientHeight: Math.max(1, Number(payload.clientHeight) || 1)
+      }
+    };
+    if (typeof payload.playing === "boolean") {
+      patch.playing = payload.playing;
+    }
+    updateState(patch, payload.clientId || null);
     return;
   }
 
@@ -90,37 +107,37 @@ function handleControl(ws, event, payload = {}) {
   }
 
   if (event === "control:setText") {
-    updateState({ text: String(payload.text || ""), position: 0, playing: false });
+    updateState({ text: String(payload.text || ""), position: 0, playing: false }, payload.clientId || null);
     return;
   }
 
   if (event === "control:play") {
-    updateState({ playing: true });
+    updateState({ playing: true }, payload.clientId || null);
     return;
   }
 
   if (event === "control:pause") {
-    updateState({ playing: false });
+    updateState({ playing: false }, payload.clientId || null);
     return;
   }
 
   if (event === "control:setSpeed") {
-    updateState({ speed: clamp(Number(payload.speed) || state.speed, 4, 180) });
+    updateState({ speed: clamp(Number(payload.speed) || state.speed, 1, 180) }, payload.clientId || null);
     return;
   }
 
   if (event === "control:setPosition") {
-    updateState({ position: clamp(Number(payload.position) || 0, 0, 1) });
+    updateState({ position: clamp(Number(payload.position) || 0, 0, 1) }, payload.clientId || null);
     return;
   }
 
   if (event === "control:setFontSize") {
-    updateState({ fontSize: clamp(Number(payload.fontSize) || state.fontSize, 36, 140) });
+    updateState({ fontSize: clamp(Number(payload.fontSize) || state.fontSize, 36, 140) }, payload.clientId || null);
     return;
   }
 
   if (event === "control:toggleMirror") {
-    updateState({ mirror: Boolean(payload.mirror) });
+    updateState({ mirror: Boolean(payload.mirror) }, payload.clientId || null);
   }
 }
 

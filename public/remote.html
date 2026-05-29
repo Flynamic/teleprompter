@@ -33,7 +33,7 @@
         </label>
         <label>
           <span>Tempo</span>
-          <input id="speedInput" type="range" min="4" max="180" value="34">
+          <input id="speedInput" type="range" min="1" max="180" value="34">
         </label>
         <label>
           <span>Schrift</span>
@@ -48,9 +48,16 @@
         </label>
       </section>
 
+      <section class="live-pane">
+        <div class="screen-preview" id="screenPreview">
+          <div class="screen-marker"></div>
+          <div class="screen-text" id="screenText"></div>
+        </div>
+        <div class="position-readout" id="positionReadout">0%</div>
+      </section>
+
       <section class="editor-pane">
         <textarea id="textInput" spellcheck="true"></textarea>
-        <div class="preview" id="preview"></div>
       </section>
     </main>
     <script src="/shared.js"></script>

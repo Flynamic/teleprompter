@@ -1,6 +1,7 @@
 window.TeleprompterSocket = function createTeleprompterSocket(onState, onStatus, onError) {
   let socket;
   let retryTimer;
+  const clientId = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
   function connect() {
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
@@ -29,8 +30,9 @@ window.TeleprompterSocket = function createTeleprompterSocket(onState, onStatus,
   return {
     send(event, payload = {}) {
       if (socket?.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ event, payload }));
+        socket.send(JSON.stringify({ event, payload: { ...payload, clientId } }));
       }
-    }
+    },
+    clientId
   };
 };
