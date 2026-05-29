@@ -101,7 +101,10 @@ textarea {
   text-align: center;
   text-wrap: balance;
   text-shadow: 0 0 18px rgba(255, 248, 234, 0.18);
-  will-change: transform;
+}
+
+.prompter-text.mirror {
+  transform: scaleX(-1);
 }
 
 .tap-target {
@@ -301,7 +304,10 @@ input[type="range"] {
   line-height: 1.28;
   letter-spacing: 0;
   text-align: center;
-  will-change: transform;
+}
+
+.screen-text.mirror {
+  transform: scaleX(-1);
 }
 
 .position-readout {

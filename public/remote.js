@@ -60,7 +60,7 @@ function render(state) {
   if (screenPreview) {
     requestAnimationFrame(() => {
       const maxPreviewScroll = Math.max(0, screenPreview.scrollHeight - screenPreview.clientHeight);
-      screenText.style.transform = `translateY(${-maxPreviewScroll * (state.position || 0)}px)${state.mirror ? " scaleX(-1)" : ""}`;
+      screenPreview.scrollTop = maxPreviewScroll * (state.position || 0);
     });
   }
   applying = false;
