@@ -1,10 +1,13 @@
 import crypto from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import { WebSocketServer } from "ws";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const controlToken = process.env.CONTROL_TOKEN || "";
+const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "public");
 
 const defaultText = `Guten Morgen zusammen,
 
@@ -35,6 +38,22 @@ const state = {
 const clients = new Set();
 
 app.disable("x-powered-by");
+
+app.get("/r", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  res.sendFile(path.join(publicDir, "remote-live.html"));
+});
+
+app.get("/remote-current.js", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  res.type("application/javascript").sendFile(path.join(publicDir, "remote.js"));
+});
+
+app.get("/shared-current.js", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  res.type("application/javascript").sendFile(path.join(publicDir, "shared.js"));
+});
+
 app.use(express.static("public", {
   extensions: ["html"],
   etag: true,
