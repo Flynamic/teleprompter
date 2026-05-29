@@ -44,9 +44,19 @@ app.get("/r", (_req, res) => {
   res.sendFile(path.join(publicDir, "remote-live.html"));
 });
 
+app.get("/p", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  res.sendFile(path.join(publicDir, "prompter-live.html"));
+});
+
 app.get("/remote-current.js", (_req, res) => {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
   res.type("application/javascript").sendFile(path.join(publicDir, "remote.js"));
+});
+
+app.get("/prompter-current.js", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  res.type("application/javascript").sendFile(path.join(publicDir, "prompter.js"));
 });
 
 app.get("/shared-current.js", (_req, res) => {
