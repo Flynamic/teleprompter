@@ -38,7 +38,12 @@ app.disable("x-powered-by");
 app.use(express.static("public", {
   extensions: ["html"],
   etag: true,
-  maxAge: "1h"
+  maxAge: 0,
+  setHeaders(res, path) {
+    if (/\.(html|js|css)$/.test(path)) {
+      res.setHeader("Cache-Control", "no-store, must-revalidate");
+    }
+  }
 }));
 
 app.get("/healthz", (_req, res) => {
