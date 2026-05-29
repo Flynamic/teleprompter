@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
+    <title>Teleprompter</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="prompter-screen">
+    <main class="prompter-shell">
+      <div class="top-bar">
+        <div class="status-dot" id="statusDot"></div>
+        <button class="icon-button" id="fullscreenButton" type="button" title="Vollbild">⛶</button>
+      </div>
+      <section class="prompter-viewport" id="viewport">
+        <article class="prompter-text" id="text"></article>
+      </section>
+      <button class="tap-target" id="playButton" type="button" aria-label="Start oder Pause"></button>
+    </main>
+    <script src="/shared.js"></script>
+    <script src="/prompter.js"></script>
+  </body>
+</html>
